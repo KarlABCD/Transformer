@@ -148,3 +148,16 @@ def get_attn_subsequent_mask(seq):
     subsequent_mask = np.triu(np.ones(attn_shape),k=1)
     subsequent_mask = torch.from_numpy(subsequent_mask).byte()
     return subsequent_mask
+def greedy_decoder(model, enc_input, start_symbol):
+    enc_outputs, enc_self_attns = model.encoder(enc_input)
+    dec_input = torch.zeros(1, 5).type_as(enc_input.data)
+    next_symbol = start_symbol
+    for i in range(0,5):
+        dec_input[0][i] = next_symbol
+        dec_output,_,_ = model.decoder(dec_input, enc_input, enc_outputs)
+        projected = model.projection(dec_output)
+        prob = projected.squeeze(0).max(dim = -1, keepdim = False)[1]
+        next_word = prob.data[i]
+        next_symbol = next_word.item()
+    dec_outputs = dec_input
+    return dec_outputs

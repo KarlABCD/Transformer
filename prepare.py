@@ -24,7 +24,7 @@ class TranslationCorpus:
             src_seq += [self.src_vocab['<pad>']] * (self.src_len - len(src_seq))
             tgt_seq += [self.tgt_vocab['<pad>']] * (self.tgt_len - len(tgt_seq))
             input_batch.append(src_seq)
-            output_batch.append([self.tgt_vocab['<sos>']] + ([self.tgt_vocab['<pad>']]* 
+            output_batch.append([self.tgt_vocab['<sos>']] + ([self.tgt_vocab['<pad>']]* \
                                                              (self.tgt_len -2)) if test_batch else tgt_seq[:-1])
             target_batch.append(tgt_seq[1:])
         input_batch = torch.LongTensor(input_batch)
