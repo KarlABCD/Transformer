@@ -9,8 +9,8 @@ class TranslationCorpus:
         self.src_idx2word = {v: k for k, v in self.src_vocab.items()}
         self.tgt_idx2word = {v: k for k, v in self.tgt_vocab.items()}
     def create_vocabularies(self):
-        src_counter = Counter(word for sentence in self. sentences for word in sentence[0].split())
-        tgt_counter = Counter(word for sentence in self. sentences for word in sentence[1].split())
+        src_counter = Counter(word for sentence in self.sentences for word in sentence[0].split())
+        tgt_counter = Counter(word for sentence in self.sentences for word in sentence[1].split())
         src_vocab = {'<pad>': 0, **{word: i+1 for i, word in enumerate(src_counter)}}
         tgt_vocab = {'<pad>': 0, '<sos>': 1, '<eos>': 2, **{word:i+3 for i, word in enumerate(tgt_counter)}}
         return src_vocab, tgt_vocab

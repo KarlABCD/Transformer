@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import torch.functional as F
 from visualization import Visualization
+from prepare import TranslationCorpus
 
 d_k = 64
 d_v = 64
@@ -89,6 +90,7 @@ class DecoderLayer(nn.Module):
         self.pos_ffn = PoswiseFeedForwardNet()
     def forward(self, dec_inputs, enc_outputs, dec_self_attn_mask, dec_enc_attn_mask):
         dec_outputs, dec_self_attn = self.dec_self_attn(dec_inputs, dec_inputs, dec_inputs, dec_self_attn_mask)
+        #Visualization.VisualizeAttention()
         dec_outputs, dec_enc_attn = self.dec_enc_attn(dec_outputs, enc_outputs, enc_outputs, dec_enc_attn_mask)
         dec_outputs = self.pos_ffn(dec_outputs)
         return dec_outputs, dec_self_attn, dec_enc_attn
@@ -111,7 +113,7 @@ class Decoder(nn.Module):
             dec_outputs, dec_self_attn, dec_enc_attn = layer(dec_outputs, enc_outputs, dec_self_attn_mask, dec_enc_attn_mask)
             dec_self_attns.append(dec_self_attn)
             dec_enc_attns.append(dec_enc_attn)
-            Visualization.PlotOneDimTensor(dec_outputs)
+            #Visualization.PlotOneDimTensor(dec_outputs)
         return dec_outputs, dec_self_attns, dec_enc_attns
 
 class Transformer(nn.Module):

@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import torch
 from mpl_toolkits.mplot3d import axes3d
 import numpy as np
+import seaborn as sns
 
 class Visualization:    
     def Tensor2Numpy(InputTensor):
@@ -31,3 +32,19 @@ class Visualization:
         ax.set_aspect('equalxy', 'box')
         plt.savefig("sine_wave.png")
         #plt.show()
+    def VisualizeAttention(source_sentences, predicted_sentences, attn_weights):
+        plt.figure(figsize=(10, 10))
+        ax = sns.heatmap(attn_weights, annot = True, cbar = False,
+                         xticklabels=source_sentences.split(),
+                         yticklabels=predicted_sentences,cmap="Greens")
+        plt.xlabel("源序列")
+        plt.ylabel("目标序列")
+        plt.show()
+    def VisualizePara(InputNumpy, ParaName, index):
+        fig = plt.figure(figsize=(InputNumpy.shape[1], InputNumpy.shape[0]))
+        for i in range(InputNumpy.shape[0]):
+            for j in range(InputNumpy.shape[1]):
+                plt.text(j, i, f'{InputNumpy[i, j]:.2f}', ha='center', va='center', color='black')
+        plt.imshow(InputNumpy, cmap='viridis')
+        plt.title(ParaName)
+        plt.savefig(f"{index} {ParaName}.jpg",bbox_inches='tight', pad_inches=0)
