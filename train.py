@@ -1,10 +1,11 @@
 import torch 
 import torch.nn as nn
 import torch.optim as optim
-from model import Transformer, greedy_decoder
+from model import Transformer, greedy_decoder, forward_hook
 from prepare import TranslationCorpus
 from visualization import Visualization
 import pickle
+import copy
 
 sentences = [
           ['咖哥 喜欢 小冰', 'KaGe likes XiaoBing'],
@@ -14,16 +15,20 @@ sentences = [
             ['神经网络 非常 复杂', 'Neural-Nets are complex']]
 
 corpus = TranslationCorpus(sentences)
-
 model = Transformer(corpus)
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(),lr=0.0001)
+
 epochs = 100
 file = open('output.pkl', 'wb')
-#data = {}
 Epochs = []
 Names = []
 DataList = [[] for _ in range(len(list(model.named_parameters())))]
+Data = []
+ModelInput =  [[] for _ in range(0,epochs)]
+ModelOutput =  [[] for _ in range(0,epochs)]
+forward_hook.inputs = []
+forward_hook.outputs = []
 for epoch in range(epochs):
     optimizer.zero_grad()
     #model_parameter = list(model.parameters())
@@ -31,13 +36,20 @@ for epoch in range(epochs):
     #print([corpus.src_idx2word[value] for i in range(enc_inputs.size(0)) for value in enc_inputs[i].tolist()])
     #print([corpus.tgt_idx2word[value] for i in range(dec_inputs.size(0)) for value in dec_inputs[i].tolist()])
     #print([corpus.tgt_idx2word[value] for i in range(target_batch.size(0)) for value in target_batch[i].tolist()])
+    for module_to_hook in model.encoder.layers:
+        handle = module_to_hook.enc_self_attn.register_forward_hook(forward_hook)
+        break
     outputs,_,_,_ = model(enc_inputs,dec_inputs)
-    
+    handle.remove()
+    ModelInput[epoch] = copy.deepcopy(forward_hook.inputs)
+    ModelOutput[epoch] = copy.deepcopy(forward_hook.outputs)
     for index, values in enumerate(model.named_parameters()):
         model_data = values[1].data.detach().numpy()
         if(epoch == 0):
             Names.append(values[0])
-        DataList[index].append(model_data)
+        DataList[index] = copy.deepcopy(model_data)
+    Data.append(copy.deepcopy(DataList))
+
     #DataList.append(DataListContainer)
     loss = criterion(outputs.view(-1,len(corpus.tgt_vocab)),target_batch.view(-1))
     if(epoch + 1) % 1 == 0:
@@ -46,7 +58,8 @@ for epoch in range(epochs):
     optimizer.step()
     Epochs.append(epoch)
     #DataListContainer = [[] for _ in range(len(list(model.named_parameters())))]
-data = { 'Epochs': Epochs, 'Name': Names, 'Data': DataList}
+
+data = { 'Epochs': Epochs, 'Name': Names, 'Data': Data, 'Input': ModelInput, 'Output': ModelOutput}
 print(Names)
 pickle.dump(data, file)
 file.close()

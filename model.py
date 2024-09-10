@@ -127,7 +127,13 @@ class Transformer(nn.Module):
         dec_outputs, dec_self_attns, dec_enc_attns = self.decoder(dec_inputs, enc_inputs, enc_outputs)
         dec_logits = self.projection(dec_outputs)
         return dec_logits, enc_self_attns, dec_self_attns, dec_enc_attns
-    
+def forward_hook(module, input, output):
+    print(f"Module name: {module.__class__.__name__}")
+    #print(f"Input shape: {tuple(input[0].shape)}")
+    #print(f"Output shape: {tuple(output[0].shape)}")
+    #print(output)
+    forward_hook.inputs = input[0].detach().numpy()
+    forward_hook.outputs = output[0].detach().numpy()
 def get_sin_enc_table(n_position, embedding_dim):
     sinusoid_table = np.zeros((n_position,embedding_dim))
     for pos_i in range(n_position):
