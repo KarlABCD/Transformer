@@ -36,13 +36,20 @@ for epoch in range(epochs):
     #print([corpus.src_idx2word[value] for i in range(enc_inputs.size(0)) for value in enc_inputs[i].tolist()])
     #print([corpus.tgt_idx2word[value] for i in range(dec_inputs.size(0)) for value in dec_inputs[i].tolist()])
     #print([corpus.tgt_idx2word[value] for i in range(target_batch.size(0)) for value in target_batch[i].tolist()])
-    for module_to_hook in model.encoder.layers:
-        handle = module_to_hook.enc_self_attn.register_forward_hook(forward_hook)
+    for module_to_hook in model.decoder.layers:
+        handle = module_to_hook.dec_enc_attn.register_forward_hook(forward_hook)
         break
+    '''handle = model.encoder.src_emb.register_forward_hook(forward_hook)'''
+    '''handle = model.encoder.register_forward_hook(forward_hook)'''
     outputs,_,_,_ = model(enc_inputs,dec_inputs)
     handle.remove()
-    ModelInput[epoch] = copy.deepcopy(forward_hook.inputs)
-    ModelOutput[epoch] = copy.deepcopy(forward_hook.outputs)
+    #ModelInput[epoch] = copy.deepcopy(forward_hook.inputs)
+    for index,values in enumerate(forward_hook.inputs):
+        ModelInput[epoch].append(copy.deepcopy(values))
+    #print(ModelInput[epoch])
+    for index,values in enumerate(forward_hook.outputs):
+        ModelOutput[epoch].append(copy.deepcopy(values))
+    #print(ModelOutput[epoch])
     for index, values in enumerate(model.named_parameters()):
         model_data = values[1].data.detach().numpy()
         if(epoch == 0):
@@ -58,9 +65,8 @@ for epoch in range(epochs):
     optimizer.step()
     Epochs.append(epoch)
     #DataListContainer = [[] for _ in range(len(list(model.named_parameters())))]
-
 data = { 'Epochs': Epochs, 'Name': Names, 'Data': Data, 'Input': ModelInput, 'Output': ModelOutput}
-print(Names)
+#print(Names)
 pickle.dump(data, file)
 file.close()
 

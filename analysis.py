@@ -28,16 +28,19 @@ class TrainAnalysis():
     def ReadModelInputOutput(self):
         traindata = pickle.load(self.file)
         filename = 'model_analysis.csv'
+        np.set_printoptions(suppress=True, threshold=np.inf)
         with open(filename, 'w', newline='') as file:
             writer = csv.writer(file)
             for epoch in traindata['Epochs']:
                 writer.writerow([epoch])
                 writer.writerow(['input'])
-                writer.writerow(traindata['Input'][epoch])
+                for index, row in enumerate(traindata['Input'][epoch]):
+                    writer.writerow(row)
                 writer.writerow(['output'])
-                writer.writerow(traindata['Output'][epoch])
+                for index, row in enumerate(traindata['Output'][epoch]):
+                    writer.writerow(row)
         return
 
 train_analysis = TrainAnalysis('output.pkl')
-#train_analysis.ReadTrainData('projection.weight')
+#train_analysis.ReadTrainData('encoder.layers.0.enc_self_attn.W_V.weight')
 train_analysis.ReadModelInputOutput()

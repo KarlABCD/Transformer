@@ -90,7 +90,6 @@ class DecoderLayer(nn.Module):
         self.pos_ffn = PoswiseFeedForwardNet()
     def forward(self, dec_inputs, enc_outputs, dec_self_attn_mask, dec_enc_attn_mask):
         dec_outputs, dec_self_attn = self.dec_self_attn(dec_inputs, dec_inputs, dec_inputs, dec_self_attn_mask)
-        #Visualization.VisualizeAttention()
         dec_outputs, dec_enc_attn = self.dec_enc_attn(dec_outputs, enc_outputs, enc_outputs, dec_enc_attn_mask)
         dec_outputs = self.pos_ffn(dec_outputs)
         return dec_outputs, dec_self_attn, dec_enc_attn
@@ -129,11 +128,24 @@ class Transformer(nn.Module):
         return dec_logits, enc_self_attns, dec_self_attns, dec_enc_attns
 def forward_hook(module, input, output):
     print(f"Module name: {module.__class__.__name__}")
-    #print(f"Input shape: {tuple(input[0].shape)}")
-    #print(f"Output shape: {tuple(output[0].shape)}")
-    #print(output)
-    forward_hook.inputs = input[0].detach().numpy()
-    forward_hook.outputs = output[0].detach().numpy()
+    forward_hook.inputs = []
+    forward_hook.outputs = []
+    if not isinstance(input, tuple):
+        input = tuple(input)
+    if not isinstance(output, tuple):
+        output = tuple(output)
+    for i in range(0, len(input)):
+        if isinstance(input[i], torch.Tensor):
+            forward_hook.inputs.append(input[i].data.detach().numpy())
+        if isinstance(input[i], list):
+            for m in range(0, len(input[i])):
+                forward_hook.outputs.append(input[i][m].data.detach().numpy())
+    for j in range(0, len(output)):
+        if isinstance(output[j], torch.Tensor):
+            forward_hook.outputs.append(output[j].data.detach().numpy())
+        if isinstance(output[j], list):
+            for m in range(0, len(output[j])):
+                forward_hook.outputs.append(output[j][m].data.detach().numpy())
 def get_sin_enc_table(n_position, embedding_dim):
     sinusoid_table = np.zeros((n_position,embedding_dim))
     for pos_i in range(n_position):
