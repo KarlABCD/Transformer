@@ -42,5 +42,5 @@ class TrainAnalysis():
         return
 
 train_analysis = TrainAnalysis('output.pkl')
-#train_analysis.ReadTrainData('encoder.layers.0.enc_self_attn.W_V.weight')
-train_analysis.ReadModelInputOutput()
+train_analysis.ReadTrainData('encoder.layers.5.enc_self_attn.W_V.weight')
+#train_analysis.ReadModelInputOutput()

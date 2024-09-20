@@ -92,8 +92,7 @@ file.close()
 #print(input_sentence,'->',translated_sentence)
 
 #方法2
-model.to('cpu')
-enc_inputs, dec_inputs, target_batch = corpus.make_batch(batch_size=1, device_type = 'cpu', test_batch = True)
+enc_inputs, dec_inputs, target_batch = corpus.make_batch(batch_size=1, device_type = device_type, test_batch = True)
 greedy_dec_input = greedy_decoder(model,enc_inputs,start_symbol=corpus.tgt_vocab['<sos>'])
 greedy_dec_ooutput_words = [corpus.tgt_idx2word[n.item()] for n in greedy_dec_input.squeeze()]
 enc_inputs_words = [corpus.src_idx2word[code.item()] for code in enc_inputs[0]]
