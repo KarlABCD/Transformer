@@ -14,7 +14,7 @@ class TranslationCorpus:
         src_vocab = {'<pad>': 0, **{word: i+1 for i, word in enumerate(src_counter)}}
         tgt_vocab = {'<pad>': 0, '<sos>': 1, '<eos>': 2, **{word:i+3 for i, word in enumerate(tgt_counter)}}
         return src_vocab, tgt_vocab
-    def make_batch(self, batch_size, test_batch = False):
+    def make_batch(self, batch_size, device_type, test_batch = False):
         input_batch, output_batch, target_batch = [],[],[]
         sentence_indices = torch.randperm(len(self.sentences))[:batch_size]
         for index in sentence_indices:
@@ -27,8 +27,13 @@ class TranslationCorpus:
             output_batch.append([self.tgt_vocab['<sos>']] + ([self.tgt_vocab['<pad>']]* \
                                                              (self.tgt_len -2)) if test_batch else tgt_seq[:-1])
             target_batch.append(tgt_seq[1:])
-        input_batch = torch.LongTensor(input_batch)
-        output_batch = torch.LongTensor(output_batch)
-        target_batch = torch.LongTensor(target_batch)
+        if device_type == 'cuda':
+            input_batch = torch.LongTensor(input_batch).to('cuda')
+            output_batch = torch.LongTensor(output_batch).to('cuda')
+            target_batch = torch.LongTensor(target_batch).to('cuda') 
+        else:
+            input_batch = torch.LongTensor(input_batch)
+            output_batch = torch.LongTensor(output_batch)
+            target_batch = torch.LongTensor(target_batch)
         return input_batch, output_batch, target_batch
     

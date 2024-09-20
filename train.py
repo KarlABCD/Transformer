@@ -7,6 +7,10 @@ from visualization import Visualization
 import pickle
 import copy
 
+# GPU
+device_type = 'cuda'
+dtype = 'bfloat16'
+
 sentences = [
           ['咖哥 喜欢 小冰', 'KaGe likes XiaoBing'],
             ['我 爱 学习 人工智能', 'I love studying AI'],
@@ -29,10 +33,14 @@ ModelInput =  [[] for _ in range(0,epochs)]
 ModelOutput =  [[] for _ in range(0,epochs)]
 forward_hook.inputs = []
 forward_hook.outputs = []
+
+if device_type == 'cuda' and torch.cuda.is_available():
+    model.to('cuda')
+
 for epoch in range(epochs):
     optimizer.zero_grad()
     #model_parameter = list(model.parameters())
-    enc_inputs, dec_inputs, target_batch = corpus.make_batch(3)
+    enc_inputs, dec_inputs, target_batch = corpus.make_batch(3, device_type)
     #print([corpus.src_idx2word[value] for i in range(enc_inputs.size(0)) for value in enc_inputs[i].tolist()])
     #print([corpus.tgt_idx2word[value] for i in range(dec_inputs.size(0)) for value in dec_inputs[i].tolist()])
     #print([corpus.tgt_idx2word[value] for i in range(target_batch.size(0)) for value in target_batch[i].tolist()])
@@ -51,7 +59,10 @@ for epoch in range(epochs):
         ModelOutput[epoch].append(copy.deepcopy(values))
     #print(ModelOutput[epoch])
     for index, values in enumerate(model.named_parameters()):
-        model_data = values[1].data.detach().numpy()
+        if(values[1].device.type == 'cuda'):
+            model_data = values[1].cpu().data.detach().numpy()
+        else:
+            model_data = values[1].data.detach().numpy()
         if(epoch == 0):
             Names.append(values[0])
         DataList[index] = copy.deepcopy(model_data)
@@ -81,7 +92,8 @@ file.close()
 #print(input_sentence,'->',translated_sentence)
 
 #方法2
-enc_inputs, dec_inputs, target_batch = corpus.make_batch(batch_size=1, test_batch = True)
+model.to('cpu')
+enc_inputs, dec_inputs, target_batch = corpus.make_batch(batch_size=1, device_type = 'cpu', test_batch = True)
 greedy_dec_input = greedy_decoder(model,enc_inputs,start_symbol=corpus.tgt_vocab['<sos>'])
 greedy_dec_ooutput_words = [corpus.tgt_idx2word[n.item()] for n in greedy_dec_input.squeeze()]
 enc_inputs_words = [corpus.src_idx2word[code.item()] for code in enc_inputs[0]]

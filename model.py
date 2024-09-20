@@ -136,16 +136,28 @@ def forward_hook(module, input, output):
         output = tuple(output)
     for i in range(0, len(input)):
         if isinstance(input[i], torch.Tensor):
-            forward_hook.inputs.append(input[i].data.detach().numpy())
+            if(input[i].device.type == 'cuda'):
+                forward_hook.inputs.append(input[i].cpu().data.detach().numpy())
+            else:
+                forward_hook.inputs.append(input[i].data.detach().numpy())
         if isinstance(input[i], list):
             for m in range(0, len(input[i])):
-                forward_hook.outputs.append(input[i][m].data.detach().numpy())
+                if (input[i][m].device.type == 'cuda'):
+                    forward_hook.outputs.append(input[i][m].cpu().data.detach().numpy())
+                else:
+                    forward_hook.outputs.append(input[i][m].data.detach().numpy())
     for j in range(0, len(output)):
         if isinstance(output[j], torch.Tensor):
-            forward_hook.outputs.append(output[j].data.detach().numpy())
+            if (output[j].device.type == 'cuda'):
+                forward_hook.outputs.append(output[j].cpu().data.detach().numpy())
+            else:
+                forward_hook.outputs.append(output[j].data.detach().numpy())
         if isinstance(output[j], list):
             for m in range(0, len(output[j])):
-                forward_hook.outputs.append(output[j][m].data.detach().numpy())
+                if(output[j][m].device.type == 'cuda'):
+                    forward_hook.outputs.append(output[j][m].cpu().data.detach().numpy())
+                else:
+                    forward_hook.outputs.append(output[j][m].data.detach().numpy())
 def get_sin_enc_table(n_position, embedding_dim):
     sinusoid_table = np.zeros((n_position,embedding_dim))
     for pos_i in range(n_position):
@@ -166,7 +178,7 @@ def get_attn_pad_mask(seq_q,seq_k):
 def get_attn_subsequent_mask(seq):
     attn_shape = [seq.size(0),seq.size(1),seq.size(1)]
     subsequent_mask = np.triu(np.ones(attn_shape),k=1)
-    subsequent_mask = torch.from_numpy(subsequent_mask).byte()
+    subsequent_mask = torch.from_numpy(subsequent_mask).byte().to(seq.device)
     return subsequent_mask
 def greedy_decoder(model, enc_input, start_symbol):
     enc_outputs, enc_self_attns = model.encoder(enc_input)
