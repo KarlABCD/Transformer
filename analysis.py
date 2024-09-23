@@ -35,12 +35,14 @@ class TrainAnalysis():
                 writer.writerow([epoch])
                 writer.writerow(['input'])
                 for index, row in enumerate(traindata['Input'][epoch]):
+                    writer.writerow({f'input index = {index}', f'input shape = {row.shape}'})
                     writer.writerow(row)
                 writer.writerow(['output'])
                 for index, row in enumerate(traindata['Output'][epoch]):
+                    writer.writerow({f'output index = {index}', f'output shape = {row.shape}'})
                     writer.writerow(row)
         return
 
 train_analysis = TrainAnalysis('output.pkl')
-train_analysis.ReadTrainData('encoder.layers.5.enc_self_attn.W_V.weight')
-#train_analysis.ReadModelInputOutput()
+#train_analysis.ReadTrainData('encoder.layers.5.enc_self_attn.W_V.weight')
+train_analysis.ReadModelInputOutput()

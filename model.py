@@ -7,7 +7,7 @@ from prepare import TranslationCorpus
 
 d_k = 64
 d_v = 64
-d_embedding = 256
+d_embedding = 128
 n_heads = 8
 batch_size = 3
 n_layers = 1
