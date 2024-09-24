@@ -11,6 +11,7 @@ for epoch in traindata['Epochs']:
         for i in range(len(row)):
             for j in range(len(row[i])):
               if(row[i][j] == 1 or row[i][j] == 2):
-                  print(traindata['Output'][epoch][0][i][j])
+                  #print(traindata['Output'][epoch][0][i][j])
                   ax.plot( traindata['Output'][epoch][0][i][j])
+                  print(traindata['Output'][epoch][1])
 plt.show()

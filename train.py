@@ -6,11 +6,14 @@ from prepare import TranslationCorpus
 from visualization import Visualization
 import pickle
 import copy
+import os
 
 # GPU
-device_type = 'cuda'
+device_type = 'gpu'
 dtype = 'bfloat16'
-
+out_dir = 'CheckPt'
+WorkMode = 'PreTrained'
+#WorkMode = 'scratch'
 sentences = [
           ['咖哥 喜欢 小冰', 'KaGe likes XiaoBing'],
             ['我 爱 学习 人工智能', 'I love studying AI'],
@@ -19,10 +22,16 @@ sentences = [
             ['神经网络 非常 复杂', 'Neural-Nets are complex']]
 
 corpus = TranslationCorpus(sentences)
-model = Transformer(corpus)
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(),lr=0.0001)
-epochs = 5
+if (os.path.exists('CheckPt/ckpt.pt') and WorkMode == 'PreTrained'):
+    PreCheckPt = torch.load(os.path.join('CheckPt/ckpt.pt'))
+    model = PreCheckPt['model']
+    optimizer = PreCheckPt['optimizer']
+else:
+    model = Transformer(corpus)
+    optimizer = optim.Adam(model.parameters(),lr=0.0001)
+
+epochs = 100
 bDataRecord = True
 if device_type == 'cuda' and torch.cuda.is_available():
     model.to('cuda')
@@ -48,14 +57,13 @@ for epoch in range(epochs):
     #print([corpus.tgt_idx2word[value] for i in range(target_batch.size(0)) for value in target_batch[i].tolist()])
 
     if bDataRecord:
-        for module_to_hook in model.encoder.layers:
+        #for module_to_hook in model.encoder.layers:
             #handle = module_to_hook.enc_self_attn.register_forward_hook(forward_hook)
-            handle = module_to_hook.pos_ffn.register_forward_hook(forward_hook)
-            break
+        #    handle = module_to_hook.pos_ffn.register_forward_hook(forward_hook)
+        #    break
         #handle = model.encoder.src_emb.register_forward_hook(forward_hook)
         #handle = model.encoder.pos_emb.register_forward_hook(forward_hook)
-        #handle = model.encoder.register_forward_hook(forward_hook)
-        
+        handle = model.encoder.register_forward_hook(forward_hook)        
 
     outputs,_,_,_ = model(enc_inputs,dec_inputs)
     if bDataRecord:
@@ -82,12 +90,18 @@ for epoch in range(epochs):
         print(f"Epoch: {epoch + 1:04d} cost = {loss:.6f}")
     loss.backward()
     optimizer.step()
+
 if bDataRecord:
     data = { 'Epochs': Epochs, 'Name': Names, 'Data': Data, 'Input': ModelInput, 'Output': ModelOutput}
     #print(Names)
     pickle.dump(data, file)
     file.close()
 
+os.makedirs(out_dir, exist_ok=True)
+CheckPoint = {'model': model,
+              'optimizer': optimizer,
+             }
+torch.save(CheckPoint, os.path.join(out_dir, 'ckpt.pt'))
 #方法1
 #enc_inputs, dec_inputs, target_batch = corpus.make_batch(batch_size=1,test_batch=True)
 #print(''.join(corpus.src_idx2word[idx.item()] for idx in enc_inputs[0]))
