@@ -11,7 +11,10 @@ import os
 # GPU
 device_type = 'gpu'
 dtype = 'bfloat16'
-out_dir = 'CheckPt'
+ModelOutDir = 'checkpoint'
+ModelName = 'checkpoint.pt'
+RecordOutDir = 'modelrecord'
+RecordName = 'record.pkl'
 WorkMode = 'PreTrained'
 #WorkMode = 'scratch'
 sentences = [
@@ -23,8 +26,8 @@ sentences = [
 
 corpus = TranslationCorpus(sentences)
 criterion = nn.CrossEntropyLoss()
-if (os.path.exists('CheckPt/ckpt.pt') and WorkMode == 'PreTrained'):
-    PreCheckPt = torch.load(os.path.join('CheckPt/ckpt.pt'))
+if (os.path.exists(os.path.join(ModelOutDir, ModelName)) and WorkMode == 'PreTrained'):
+    PreCheckPt = torch.load(os.path.join(ModelOutDir, ModelName))
     model = PreCheckPt['model']
     optimizer = PreCheckPt['optimizer']
 else:
@@ -38,7 +41,8 @@ if device_type == 'cuda' and torch.cuda.is_available():
 
 # 数据记录配置
 if bDataRecord:
-    file = open('output.pkl', 'wb')
+    os.makedirs(RecordOutDir, exist_ok=True)
+    file = open(os.path.join(RecordOutDir, RecordName), 'wb')
     Epochs = []
     Names = []
     DataList = [[] for _ in range(len(list(model.named_parameters())))]
@@ -71,10 +75,8 @@ for epoch in range(epochs):
     #ModelInput[epoch] = copy.deepcopy(forward_hook.inputs)
         for index,values in enumerate(forward_hook.inputs):
             ModelInput[epoch].append(copy.deepcopy(values))
-        #print(ModelInput[epoch])
         for index,values in enumerate(forward_hook.outputs):
             ModelOutput[epoch].append(copy.deepcopy(values))
-        #print(ModelOutput[epoch])
         for index, values in enumerate(model.named_parameters()):
             if(values[1].device.type == 'cuda'):
                 model_data = values[1].cpu().data.detach().numpy()
@@ -97,11 +99,11 @@ if bDataRecord:
     pickle.dump(data, file)
     file.close()
 
-os.makedirs(out_dir, exist_ok=True)
+os.makedirs(ModelOutDir, exist_ok=True)
 CheckPoint = {'model': model,
               'optimizer': optimizer,
              }
-torch.save(CheckPoint, os.path.join(out_dir, 'ckpt.pt'))
+torch.save(CheckPoint, os.path.join(ModelOutDir, ModelName))
 #方法1
 #enc_inputs, dec_inputs, target_batch = corpus.make_batch(batch_size=1,test_batch=True)
 #print(''.join(corpus.src_idx2word[idx.item()] for idx in enc_inputs[0]))

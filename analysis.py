@@ -1,7 +1,9 @@
 import pickle
 import numpy as np
 import csv
+import os
 from visualization import Visualization
+
 class TrainAnalysis():
     def __init__(self,file):
         self.file = open(file, 'rb')
@@ -25,9 +27,9 @@ class TrainAnalysis():
                     else:
                         continue
         return
-    def ReadModelInputOutput(self):
+    def ReadModelInputOutput(self, filename):
         traindata = pickle.load(self.file)
-        filename = 'model_analysis.csv'
+        
         np.set_printoptions(suppress=True, threshold=np.inf)
         with open(filename, 'w', newline='') as file:
             writer = csv.writer(file)
@@ -43,6 +45,6 @@ class TrainAnalysis():
                     writer.writerow(row)
         return
 
-train_analysis = TrainAnalysis('output.pkl')
+train_analysis = TrainAnalysis('modelrecord/record.pkl')
 #train_analysis.ReadTrainData('encoder.layers.5.enc_self_attn.W_V.weight')
-train_analysis.ReadModelInputOutput()
+train_analysis.ReadModelInputOutput(os.path.join('modelanalysis', 'model_interface.csv'))
