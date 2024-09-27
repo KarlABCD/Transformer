@@ -28,7 +28,7 @@ def main(args, corpus):
         model = PreCheckPt['model']
         optimizer = PreCheckPt['optimizer']
     else:
-        model = Transformer(corpus)
+        model = Transformer(corpus,config.model_config)
         optimizer = optim.Adam(model.parameters(),lr=config.learningrate)
 
     if config.device_type == 'cuda' and torch.cuda.is_available():
@@ -63,7 +63,7 @@ def main(args, corpus):
             #handle = model.encoder.pos_emb.register_forward_hook(forward_hook)
             handle = model.encoder.register_forward_hook(forward_hook)
 
-        outputs,_,_,_ = model(enc_inputs,dec_inputs)
+        outputs,_,_,_ = model(enc_inputs,dec_inputs, config.model_config)
         if config.bDataRecord:
             handle.remove()
             for index,values in enumerate(forward_hook.inputs):
@@ -110,7 +110,7 @@ def test(corpus, config, model):
 
     #方法2
     enc_inputs, dec_inputs, target_batch = corpus.make_batch(batch_size=1, device_type = config.device_type, test_batch = True)
-    greedy_dec_input = greedy_decoder(model,enc_inputs,start_symbol=corpus.tgt_vocab['<sos>'])
+    greedy_dec_input = greedy_decoder(model,enc_inputs,start_symbol=corpus.tgt_vocab['<sos>'], model_config = config.model_config)
     greedy_dec_ooutput_words = [corpus.tgt_idx2word[n.item()] for n in greedy_dec_input.squeeze()]
     enc_inputs_words = [corpus.src_idx2word[code.item()] for code in enc_inputs[0]]
     print(enc_inputs_words,'->',greedy_dec_ooutput_words)
