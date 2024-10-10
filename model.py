@@ -5,13 +5,6 @@ import torch.functional as F
 from visualization import Visualization
 from prepare import TranslationCorpus
 
-'''model_config['d_k'] = 64
-model_config['d_v'] = 64
-model_config['d_embedding'] = 128
-model_config['n_heads'] = 1
-batch_size = 3
-model_config['n_layers'] = 1'''
-
 class ScaledDotProductionAttention(nn.Module):
     def __init__(self):
         super(ScaledDotProductionAttention,self).__init__()

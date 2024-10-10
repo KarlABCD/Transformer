@@ -16,7 +16,10 @@ class TranslationCorpus:
         return src_vocab, tgt_vocab
     def make_batch(self, batch_size, device_type, test_batch = False):
         input_batch, output_batch, target_batch = [],[],[]
-        sentence_indices = torch.randperm(len(self.sentences))[:batch_size]
+        if(test_batch):
+            sentence_indices = torch.randperm(len(self.sentences))[:batch_size]
+        else:
+            sentence_indices = torch.arange(5)
         for index in sentence_indices:
             src_sentence, tgt_sentence = self.sentences[index]
             src_seq = [self.src_vocab[word] for word in src_sentence.split()]

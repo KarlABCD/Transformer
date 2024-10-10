@@ -46,10 +46,10 @@ def main(args, corpus):
         ModelOutput =  [[] for _ in range(0,config.epochs)]
         forward_hook.inputs = []
         forward_hook.outputs = []
-
+        os.makedirs(config.ModelOutDir, exist_ok=True)
     for epoch in range(config.epochs):
         optimizer.zero_grad()
-        enc_inputs, dec_inputs, target_batch = corpus.make_batch(3, config.device_type)
+        enc_inputs, dec_inputs, target_batch = corpus.make_batch(config.model_config['batch_size'], config.device_type)
         #print([corpus.src_idx2word[value] for i in range(enc_inputs.size(0)) for value in enc_inputs[i].tolist()])
         #print([corpus.tgt_idx2word[value] for i in range(dec_inputs.size(0)) for value in dec_inputs[i].tolist()])
         #print([corpus.tgt_idx2word[value] for i in range(target_batch.size(0)) for value in target_batch[i].tolist()])
@@ -85,17 +85,20 @@ def main(args, corpus):
             print(f"Epoch: {epoch + 1:04d} cost = {loss:.6f}")
         loss.backward()
         optimizer.step()
+        if (epoch%config.CheckPtNum == 0):
+            CheckPoint = {'model': model,
+                'optimizer': optimizer,}
+            torch.save(CheckPoint, os.path.join(config.ModelOutDir, config.ModelName))
+            print(f'record current number: {epoch}')
 
     if config.bDataRecord:
         data = { 'Epochs': Epochs, 'Name': Names, 'Data': Data, 'Input': ModelInput, 'Output': ModelOutput}
-        #print(Names)
+        print(Names)
         pickle.dump(data, file)
         file.close()
 
-    os.makedirs(config.ModelOutDir, exist_ok=True)
-    CheckPoint = {'model': model,
-                'optimizer': optimizer,}
-    torch.save(CheckPoint, os.path.join(config.ModelOutDir, config.ModelName))
+    
+
     return model, config
 def test(corpus, config, model):
     '''#方法1
