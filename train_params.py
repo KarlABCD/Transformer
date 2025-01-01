@@ -1,3 +1,7 @@
+# 语料相关
+data_dir = 'corpus'
+data_name = 'corpus_data.txt'
+
 # 训练相关
 epochs = 60
 device_type = 'cpu' # cpu or gpu

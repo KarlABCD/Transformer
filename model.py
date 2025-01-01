@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 import torch.functional as F
 from visualization import ShowHeatmaps
-from prepare import TranslationCorpus
+from corpus import TranslationCorpus
 
 class ScaledDotProductionAttention(nn.Module):
     def __init__(self):

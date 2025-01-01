@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from model import Transformer, greedy_decoder, forward_hook
-from prepare import TranslationCorpus
+from corpus import TranslationCorpus
 import matplotlib.pyplot as plt
 import pickle
 import copy
@@ -23,8 +23,9 @@ def fromfile(filename):
     else:
         raise ValueError(f"Unsupported file format: {file_extension}")
 
-def train(args, corpus):
+def train(args):
     config = fromfile(args.config)
+    corpus = TranslationCorpus(config.data_dir, config.data_name)
     criterion = nn.CrossEntropyLoss()
     if (os.path.exists(os.path.join(config.ModelOutDir, config.ModelName)) and config.WorkMode == 'PreTrained'):
         PreCheckPt = torch.load(os.path.join(config.ModelOutDir, config.ModelName))
@@ -104,7 +105,7 @@ def train(args, corpus):
         pickle.dump(data, file)
         file.close()
 
-    return model, config
+    return model, config, corpus
 def predict(corpus, config, model):
     '''#方法1
     enc_inputs, dec_inputs, target_batch = corpus.make_batch(batch_size=1,test_batch=True,device_type = config.device_type)
@@ -127,15 +128,14 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('config', help='test config file path')
     args = parser.parse_args()
-    sentences = [
+    '''sentences = [
             ['你 好 么', 'How are you'],
             ['欢迎 大家 参加 这次的 讨论会', 'Welcome everyone to participate in this discussion session'],
             ['我 希望 能够 从中 获得 相应的 收获', 'I hope you can gain corresponding benefits from it'],
             ['自然 语言 处理 很 强大', 'NLP is so powerful'],
-            ['神经网络 非常 复杂', 'Neural-Nets are complex']]
+            ['神经网络 非常 复杂', 'Neural-Nets are complex']]'''
     timer = Timer()
-    corpus = TranslationCorpus(sentences)
-    model, config = train(args, corpus)
+    model, config, corpus = train(args)
     timer.stop()
     predict(corpus, config, model)
     plt.show()
