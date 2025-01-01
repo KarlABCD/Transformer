@@ -2,7 +2,7 @@ import numpy as np
 import pickle
 import matplotlib.pyplot as plt
 
-file = open('output.pkl', 'rb')
+file = open('modelrecord/record.pkl', 'rb')
 traindata = pickle.load(file)
 np.set_printoptions(suppress=True, threshold=np.inf)
 fig, ax = plt.subplots()

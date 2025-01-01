@@ -9,6 +9,8 @@ import copy
 import os
 import argparse
 import importlib.util
+from timer import Timer
+
 # GPU
 def fromfile(filename):
     file_extension = filename.split('.')[-1]
@@ -20,7 +22,7 @@ def fromfile(filename):
     else:
         raise ValueError(f"Unsupported file format: {file_extension}")
 
-def main(args, corpus):
+def train(args, corpus):
     config = fromfile(args.config)
     criterion = nn.CrossEntropyLoss()
     if (os.path.exists(os.path.join(config.ModelOutDir, config.ModelName)) and config.WorkMode == 'PreTrained'):
@@ -97,10 +99,8 @@ def main(args, corpus):
         pickle.dump(data, file)
         file.close()
 
-    
-
     return model, config
-def test(corpus, config, model):
+def predict(corpus, config, model):
     '''#方法1
     enc_inputs, dec_inputs, target_batch = corpus.make_batch(batch_size=1,test_batch=True,device_type = config.device_type)
     print(''.join(corpus.src_idx2word[idx.item()] for idx in enc_inputs[0]))
@@ -123,11 +123,13 @@ if __name__ == '__main__':
     parser.add_argument('config', help='test config file path')
     args = parser.parse_args()
     sentences = [
-        ['咖哥 喜欢 小冰', 'KaGe likes XiaoBing'],
+            ['咖哥 喜欢 小冰', 'KaGe likes XiaoBing'],
             ['我 爱 学习 人工智能', 'I love studying AI'],
             ['深度学习 改变 世界', 'DL changed the world'],
             ['自然 语言 处理 很 强大', 'NLP is so powerful'],
             ['神经网络 非常 复杂', 'Neural-Nets are complex']]
+    timer = Timer()
     corpus = TranslationCorpus(sentences)
-    model, config = main(args, corpus)
-    test(corpus, config, model)
+    model, config = train(args, corpus)
+    timer.stop()
+    predict(corpus, config, model)

@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.functional as F
-from visualization import Visualization
+from visualization import ShowHeatmaps
 from prepare import TranslationCorpus
 
 class ScaledDotProductionAttention(nn.Module):
@@ -85,6 +85,7 @@ class DecoderLayer(nn.Module):
         dec_outputs, dec_self_attn = self.dec_self_attn(dec_inputs, dec_inputs, dec_inputs, dec_self_attn_mask, model_config)
         dec_outputs, dec_enc_attn = self.dec_enc_attn(dec_outputs, enc_outputs, enc_outputs, dec_enc_attn_mask, model_config)
         dec_outputs = self.pos_ffn(dec_outputs)
+        ShowHeatmaps(dec_enc_attn, xlabel='Keys', ylabel='Queries')
         return dec_outputs, dec_self_attn, dec_enc_attn
 
 class Decoder(nn.Module):
@@ -174,8 +175,9 @@ def get_attn_subsequent_mask(seq):
     subsequent_mask = np.triu(np.ones(attn_shape),k=1)
     subsequent_mask = torch.from_numpy(subsequent_mask).byte().to(seq.device)
     return subsequent_mask
+
 def greedy_decoder(model, enc_input, start_symbol, model_config):
-    enc_outputs, enc_self_attns = model.encoder(enc_input, model_config)
+    enc_outputs, _ = model.encoder(enc_input, model_config)
     dec_input = torch.zeros(1, 5).type_as(enc_input.data)
     next_symbol = start_symbol
     for i in range(0,5):
