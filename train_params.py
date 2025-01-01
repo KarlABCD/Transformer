@@ -1,5 +1,5 @@
 # 训练相关
-epochs = 100
+epochs = 60
 device_type = 'cpu' # cpu or gpu
 dtype = 'bfloat16'
 learningrate = 0.0001
@@ -16,6 +16,6 @@ ModelOutDir = 'checkpoint'
 ModelName = 'checkpoint.pt'
 RecordOutDir = 'modelrecord'
 RecordName = 'record.pkl'
-#WorkMode = 'PreTrained'
-WorkMode = 'scratch'
+WorkMode = 'PreTrained'
+#WorkMode = 'scratch'
 CheckPtNum = 10

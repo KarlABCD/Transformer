@@ -3,13 +3,14 @@ import torch.nn as nn
 import torch.optim as optim
 from model import Transformer, greedy_decoder, forward_hook
 from prepare import TranslationCorpus
-#from visualization import Visualization
+import matplotlib.pyplot as plt
 import pickle
 import copy
 import os
 import argparse
 import importlib.util
 from timer import Timer
+from animator import Animator
 
 # GPU
 def fromfile(filename):
@@ -49,6 +50,9 @@ def train(args, corpus):
         forward_hook.inputs = []
         forward_hook.outputs = []
         os.makedirs(config.ModelOutDir, exist_ok=True)
+        animator = Animator(xlabel='epoch',
+                            ylabel='loss',
+                            xlim=[1, config.epochs])
     for epoch in range(config.epochs):
         optimizer.zero_grad()
         enc_inputs, dec_inputs, target_batch = corpus.make_batch(config.model_config['batch_size'], config.device_type)
@@ -92,10 +96,11 @@ def train(args, corpus):
                 'optimizer': optimizer,}
             torch.save(CheckPoint, os.path.join(config.ModelOutDir, config.ModelName))
             print(f'record current number: {epoch}')
+        animator.add(epoch + 1, (float(loss.detach().numpy()), ))
 
     if config.bDataRecord:
         data = { 'Epochs': Epochs, 'Name': Names, 'Data': Data, 'Input': ModelInput, 'Output': ModelOutput}
-        print(Names)
+        #print(Names)
         pickle.dump(data, file)
         file.close()
 
@@ -113,7 +118,7 @@ def predict(corpus, config, model):
 
     #方法2
     enc_inputs, dec_inputs, target_batch = corpus.make_batch(batch_size=1, device_type = config.device_type, test_batch = True)
-    greedy_dec_input = greedy_decoder(model,enc_inputs,start_symbol=corpus.tgt_vocab['<sos>'], model_config = config.model_config)
+    greedy_dec_input = greedy_decoder(model,enc_inputs, tgt_len = corpus.tgt_len, start_symbol=corpus.tgt_vocab['<sos>'], model_config = config.model_config)
     greedy_dec_ooutput_words = [corpus.tgt_idx2word[n.item()] for n in greedy_dec_input.squeeze()]
     enc_inputs_words = [corpus.src_idx2word[code.item()] for code in enc_inputs[0]]
     print(enc_inputs_words,'->',greedy_dec_ooutput_words)
@@ -123,9 +128,9 @@ if __name__ == '__main__':
     parser.add_argument('config', help='test config file path')
     args = parser.parse_args()
     sentences = [
-            ['咖哥 喜欢 小冰', 'KaGe likes XiaoBing'],
-            ['我 爱 学习 人工智能', 'I love studying AI'],
-            ['深度学习 改变 世界', 'DL changed the world'],
+            ['你 好 么', 'How are you'],
+            ['欢迎 大家 参加 这次的 讨论会', 'Welcome everyone to participate in this discussion session'],
+            ['我 希望 能够 从中 获得 相应的 收获', 'I hope you can gain corresponding benefits from it'],
             ['自然 语言 处理 很 强大', 'NLP is so powerful'],
             ['神经网络 非常 复杂', 'Neural-Nets are complex']]
     timer = Timer()
@@ -133,3 +138,4 @@ if __name__ == '__main__':
     model, config = train(args, corpus)
     timer.stop()
     predict(corpus, config, model)
+    plt.show()

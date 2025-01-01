@@ -7,7 +7,6 @@ import numpy as np
 import seaborn as sns
 from d2l import torch as d2l
 
-
 def Tensor2Numpy(InputTensor):
     OutputNumpy = InputTensor.detach().numpy()
     return OutputNumpy

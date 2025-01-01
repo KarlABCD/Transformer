@@ -85,7 +85,7 @@ class DecoderLayer(nn.Module):
         dec_outputs, dec_self_attn = self.dec_self_attn(dec_inputs, dec_inputs, dec_inputs, dec_self_attn_mask, model_config)
         dec_outputs, dec_enc_attn = self.dec_enc_attn(dec_outputs, enc_outputs, enc_outputs, dec_enc_attn_mask, model_config)
         dec_outputs = self.pos_ffn(dec_outputs)
-        ShowHeatmaps(dec_enc_attn, xlabel='Keys', ylabel='Queries')
+        #ShowHeatmaps(dec_enc_attn, xlabel='Keys', ylabel='Queries')
         return dec_outputs, dec_self_attn, dec_enc_attn
 
 class Decoder(nn.Module):
@@ -176,11 +176,11 @@ def get_attn_subsequent_mask(seq):
     subsequent_mask = torch.from_numpy(subsequent_mask).byte().to(seq.device)
     return subsequent_mask
 
-def greedy_decoder(model, enc_input, start_symbol, model_config):
+def greedy_decoder(model, enc_input, start_symbol, model_config, tgt_len):
     enc_outputs, _ = model.encoder(enc_input, model_config)
-    dec_input = torch.zeros(1, 5).type_as(enc_input.data)
+    dec_input = torch.zeros(1, tgt_len).type_as(enc_input.data)
     next_symbol = start_symbol
-    for i in range(0,5):
+    for i in range(0,tgt_len):
         dec_input[0][i] = next_symbol
         dec_output,_,_ = model.decoder(dec_input, enc_input, enc_outputs, model_config)
         projected = model.projection(dec_output)
