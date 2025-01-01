@@ -17,10 +17,10 @@ class TranslationCorpus:
                 parts = line.split('\\')
                 if len(parts) == 2:
                     source.append(parts[0].split(' '))
-                    if(len(parts[0].split(' ')) > src_len):
+                    if(len(parts[0].split(' ')) > src_len - 1):
                         src_len = len(parts[0].split(' ')) + 1                
                     target.append(parts[1].split(' '))
-                    if(len(parts[1].split(' ')) > tgt_len):
+                    if(len(parts[1].split(' ')) > tgt_len - 2):
                         tgt_len = len(parts[1].split(' ')) + 2
             return source, target, src_len, tgt_len
         self.source, self.target, self.src_len, self.tgt_len = tokenize_nmt(raw_text)
@@ -29,8 +29,7 @@ class TranslationCorpus:
     def make_batch(self, batch_size, device_type, test_batch = False):
         input_batch, output_batch, target_batch = [],[],[]
         if(test_batch):
-            #sentence_indices = torch.randperm(len(self.source))[:batch_size]
-            sentence_indices = torch.arange(5)
+            sentence_indices = torch.randperm(len(self.source))[:batch_size]
         else:
             sentence_indices = torch.arange(5)
         for index in sentence_indices:

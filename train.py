@@ -23,9 +23,8 @@ def fromfile(filename):
     else:
         raise ValueError(f"Unsupported file format: {file_extension}")
 
-def train(args):
-    config = fromfile(args.config)
-    corpus = TranslationCorpus(config.data_dir, config.data_name)
+def train(config):
+
     criterion = nn.CrossEntropyLoss()
     if (os.path.exists(os.path.join(config.ModelOutDir, config.ModelName)) and config.WorkMode == 'PreTrained'):
         PreCheckPt = torch.load(os.path.join(config.ModelOutDir, config.ModelName))
@@ -105,7 +104,7 @@ def train(args):
         pickle.dump(data, file)
         file.close()
 
-    return model, config, corpus
+    return model, config
 def predict(corpus, config, model):
     '''#方法1
     enc_inputs, dec_inputs, target_batch = corpus.make_batch(batch_size=1,test_batch=True,device_type = config.device_type)
@@ -120,22 +119,18 @@ def predict(corpus, config, model):
     #方法2
     enc_inputs, dec_inputs, target_batch = corpus.make_batch(batch_size=1, device_type = config.device_type, test_batch = True)
     greedy_dec_input = greedy_decoder(model,enc_inputs, tgt_len = corpus.tgt_len, start_symbol=corpus.tgt_vocab['<sos>'], model_config = config.model_config)
-    greedy_dec_ooutput_words = [corpus.tgt_idx2word[n.item()] for n in greedy_dec_input.squeeze()]
-    enc_inputs_words = [corpus.src_idx2word[code.item()] for code in enc_inputs[0]]
+    greedy_dec_ooutput_words = [corpus.tgt_vocab.to_tokens(n.item()) for n in greedy_dec_input.squeeze()]
+    enc_inputs_words = [corpus.src_vocab.to_tokens(code.item()) for code in enc_inputs[0]]
     print(enc_inputs_words,'->',greedy_dec_ooutput_words)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('config', help='test config file path')
     args = parser.parse_args()
-    '''sentences = [
-            ['你 好 么', 'How are you'],
-            ['欢迎 大家 参加 这次的 讨论会', 'Welcome everyone to participate in this discussion session'],
-            ['我 希望 能够 从中 获得 相应的 收获', 'I hope you can gain corresponding benefits from it'],
-            ['自然 语言 处理 很 强大', 'NLP is so powerful'],
-            ['神经网络 非常 复杂', 'Neural-Nets are complex']]'''
+    config = fromfile(args.config)
     timer = Timer()
-    model, config, corpus = train(args)
+    corpus = TranslationCorpus(config.data_dir, config.data_name)
+    model, config = train(config)
     timer.stop()
     predict(corpus, config, model)
     plt.show()
