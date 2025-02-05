@@ -55,23 +55,35 @@ class EncoderLayer(nn.Module):
         self.enc_self_attn = MultiHeadAttention(model_config)
         self.pos_ffn = PoswiseFeedForwardNet(model_config)
     def forward(self, enc_inputs, enc_self_attn_mask, model_config):
-        enc_outputs, attn_weights = self.enc_self_attn(enc_inputs, enc_inputs, enc_inputs, enc_self_attn_mask, model_config)
+        enc_outputs, attn_weights = self.enc_self_attn(enc_inputs, 
+                                                       enc_inputs, 
+                                                       enc_inputs, 
+                                                       enc_self_attn_mask, 
+                                                       model_config)
         enc_outputs = self.pos_ffn(enc_outputs)
         return enc_outputs, attn_weights
 
 class Encoder(nn.Module):
     def __init__(self, corpus, model_config):
         super(Encoder, self).__init__()
-        self.src_emb = nn.Embedding(len(corpus.src_vocab),model_config['d_embedding'])
-        self.pos_emb = nn.Embedding.from_pretrained(get_sin_enc_table(corpus.src_len + 1,model_config['d_embedding']),freeze = True)
-        self.layers = nn.ModuleList(EncoderLayer(model_config) for _ in range(model_config['n_layers']))
+        self.src_emb = nn.Embedding(len(corpus.src_vocab),
+                                    model_config['d_embedding'])
+        self.pos_emb = nn.Embedding.from_pretrained(
+                                    get_sin_enc_table(corpus.src_len + 1,
+                                    model_config['d_embedding']),freeze = True)
+        self.layers = nn.ModuleList(EncoderLayer(model_config) 
+                                    for _ in range(model_config['n_layers']))
     def forward(self, enc_inputs, model_config):
-        pos_indices = torch.arange(1, enc_inputs.size(1) + 1).unsqueeze(0).to(enc_inputs)
+        pos_indices = torch.arange(1,
+                                   enc_inputs.size(1) + 1).\
+                                   unsqueeze(0).to(enc_inputs)
         enc_outputs = self.src_emb(enc_inputs) + self.pos_emb(pos_indices)
         enc_self_attn_mask = get_attn_pad_mask(enc_inputs, enc_inputs)
         enc_self_attn_weights = []
         for layer in self.layers:
-            enc_outputs, enc_self_attn_weight = layer(enc_outputs, enc_self_attn_mask, model_config)
+            enc_outputs, enc_self_attn_weight = layer(enc_outputs, 
+                                                      enc_self_attn_mask,
+                                                      model_config)
             enc_self_attn_weights.append(enc_self_attn_weight)
         return enc_outputs, enc_self_attn_weights
 
@@ -81,9 +93,18 @@ class DecoderLayer(nn.Module):
         self.dec_self_attn = MultiHeadAttention(model_config)
         self.dec_enc_attn = MultiHeadAttention(model_config)
         self.pos_ffn = PoswiseFeedForwardNet(model_config)
-    def forward(self, dec_inputs, enc_outputs, dec_self_attn_mask, dec_enc_attn_mask, model_config):
-        dec_outputs, dec_self_attn = self.dec_self_attn(dec_inputs, dec_inputs, dec_inputs, dec_self_attn_mask, model_config)
-        dec_outputs, dec_enc_attn = self.dec_enc_attn(dec_outputs, enc_outputs, enc_outputs, dec_enc_attn_mask, model_config)
+    def forward(self, dec_inputs, enc_outputs, dec_self_attn_mask, 
+                dec_enc_attn_mask, model_config):
+        dec_outputs, dec_self_attn = self.dec_self_attn(dec_inputs, 
+                                                        dec_inputs, 
+                                                        dec_inputs, 
+                                                        dec_self_attn_mask, 
+                                                        model_config)
+        dec_outputs, dec_enc_attn = self.dec_enc_attn(dec_outputs, 
+                                                      enc_outputs, 
+                                                      enc_outputs, 
+                                                      dec_enc_attn_mask, 
+                                                      model_config)
         dec_outputs = self.pos_ffn(dec_outputs)
         #ShowHeatmaps(dec_enc_attn, xlabel='Keys', ylabel='Queries')
         return dec_outputs, dec_self_attn, dec_enc_attn
@@ -91,8 +112,11 @@ class DecoderLayer(nn.Module):
 class Decoder(nn.Module):
     def __init__(self, corpus, model_config):
         super(Decoder, self,).__init__()
-        self.tgt_emb = nn.Embedding(len(corpus.tgt_vocab), model_config['d_embedding'])
-        self.pos_emb = nn.Embedding.from_pretrained(get_sin_enc_table(corpus.tgt_len+1, model_config['d_embedding']),freeze=True)
+        self.tgt_emb = nn.Embedding(len(corpus.tgt_vocab), 
+                                    model_config['d_embedding'])
+        self.pos_emb = nn.Embedding.from_pretrained(
+                                    get_sin_enc_table(corpus.tgt_len+1, 
+                                    model_config['d_embedding']),freeze=True)
         self.layers = nn.ModuleList([DecoderLayer(model_config) for _ in range(model_config['n_layers'])])
     def forward(self,dec_inputs, enc_inputs, enc_outputs, model_config):
         pos_indices = torch.arange(1, dec_inputs.size(1) + 1).unsqueeze(0).to(dec_inputs)
