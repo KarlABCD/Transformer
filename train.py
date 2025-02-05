@@ -26,7 +26,8 @@ def fromfile(filename):
 def train(config):
 
     criterion = nn.CrossEntropyLoss()
-    if (os.path.exists(os.path.join(config.ModelOutDir, config.ModelName)) and config.WorkMode == 'PreTrained'):
+    if (os.path.exists(os.path.join(config.ModelOutDir, config.ModelName)) and 
+        config.WorkMode == 'PreTrained'):
         PreCheckPt = torch.load(os.path.join(config.ModelOutDir, config.ModelName))
         model = PreCheckPt['model']
         optimizer = PreCheckPt['optimizer']
@@ -50,16 +51,21 @@ def train(config):
         forward_hook.inputs = []
         forward_hook.outputs = []
         os.makedirs(config.ModelOutDir, exist_ok=True)
+    if config.bDebugInfo:
         animator = Animator(xlabel='epoch',
                             ylabel='loss',
                             xlim=[1, config.epochs])
     for epoch in range(config.epochs):
         optimizer.zero_grad()
-        enc_inputs, dec_inputs, target_batch = corpus.make_batch(config.model_config['batch_size'], config.device_type)
-        #print([corpus.src_idx2word[value] for i in range(enc_inputs.size(0)) for value in enc_inputs[i].tolist()])
-        #print([corpus.tgt_idx2word[value] for i in range(dec_inputs.size(0)) for value in dec_inputs[i].tolist()])
-        #print([corpus.tgt_idx2word[value] for i in range(target_batch.size(0)) for value in target_batch[i].tolist()])
-
+        enc_inputs, dec_inputs, target_batch = corpus.make_batch(
+                                            config.model_config['batch_size'],
+                                            config.device_type)
+        if config.bDebugInfo:
+            for i in range(enc_inputs.size(0)):
+                print(f'中文: {corpus.src_vocab.to_tokens(enc_inputs[i])} \n'
+                    f'中文token: {enc_inputs[i]} \n'
+                    f'英语: {corpus.tgt_vocab.to_tokens(dec_inputs[i])} \n'
+                    f'英语token: {dec_inputs[i]}')
         if config.bDataRecord:
             #for module_to_hook in model.encoder.layers:
                 #handle = module_to_hook.enc_self_attn.register_forward_hook(forward_hook)
@@ -86,7 +92,8 @@ def train(config):
                 DataList[index] = copy.deepcopy(model_data)
             Data.append(copy.deepcopy(DataList))
             Epochs.append(epoch)
-        loss = criterion(outputs.view(-1,len(corpus.tgt_vocab)),target_batch.view(-1))
+        loss = criterion(outputs.view(-1,len(corpus.tgt_vocab)),
+                         target_batch.view(-1))
         if(epoch + 1) % 1 == 0:
             print(f"Epoch: {epoch + 1:04d} cost = {loss:.6f}")
         loss.backward()
@@ -94,12 +101,15 @@ def train(config):
         if (epoch%config.CheckPtNum == 0):
             CheckPoint = {'model': model,
                 'optimizer': optimizer,}
-            torch.save(CheckPoint, os.path.join(config.ModelOutDir, config.ModelName))
+            torch.save(CheckPoint, os.path.join(config.ModelOutDir,
+                                                config.ModelName))
             print(f'record current number: {epoch}')
-        animator.add(epoch + 1, (float(loss.detach().numpy()), ))
+        if config.bDebugInfo:
+            animator.add(epoch + 1, (float(loss.detach().numpy()), ))
 
     if config.bDataRecord:
-        data = { 'Epochs': Epochs, 'Name': Names, 'Data': Data, 'Input': ModelInput, 'Output': ModelOutput}
+        data = { 'Epochs': Epochs, 'Name': Names, 'Data': Data, 
+                 'Input': ModelInput, 'Output': ModelOutput}
         #print(Names)
         pickle.dump(data, file)
         file.close()
@@ -117,11 +127,20 @@ def predict(corpus, config, model):
     print(input_sentence,'->',translated_sentence)'''
 
     #方法2
-    enc_inputs, dec_inputs, target_batch = corpus.make_batch(batch_size=1, device_type = config.device_type, test_batch = True)
-    greedy_dec_input = greedy_decoder(model,enc_inputs, tgt_len = corpus.tgt_len, start_symbol=corpus.tgt_vocab['<sos>'], model_config = config.model_config)
-    greedy_dec_ooutput_words = [corpus.tgt_vocab.to_tokens(n.item()) for n in greedy_dec_input.squeeze()]
-    enc_inputs_words = [corpus.src_vocab.to_tokens(code.item()) for code in enc_inputs[0]]
-    print(enc_inputs_words,'->',greedy_dec_ooutput_words)
+    enc_inputs,_,_ = corpus.make_batch(config.model_config['batch_size'], 
+                                       device_type = config.device_type, 
+                                       test_batch = True)
+    for enc_input in enc_inputs:
+        enc_input = torch.unsqueeze(enc_input, dim=0)
+        greedy_dec_input = greedy_decoder(model,enc_input, 
+                                        tgt_len = corpus.tgt_len, 
+                                        start_symbol=corpus.tgt_vocab['<sos>'], 
+                                        model_config = config.model_config)
+        greedy_dec_ooutput_words = [corpus.tgt_vocab.to_tokens(n.item()) 
+                                    for n in greedy_dec_input.squeeze()]
+        enc_inputs_words = [corpus.src_vocab.to_tokens(code.item()) 
+                            for code in enc_input[0]]
+        print(enc_inputs_words,'->',greedy_dec_ooutput_words)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -133,4 +152,5 @@ if __name__ == '__main__':
     model, config = train(config)
     timer.stop()
     predict(corpus, config, model)
-    plt.show()
+    if config.bDebugInfo:
+        plt.show()
