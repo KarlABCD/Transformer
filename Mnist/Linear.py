@@ -103,7 +103,7 @@ if __name__ == '__main__':
     total_params = sum(p.numel() for p in net.parameters())
     print(f'参数量:{total_params}')
     loss = nn.CrossEntropyLoss(reduction='none')
-    trainer = torch.optim.SGD(net.parameters(), lr=0.1)
+    trainer = torch.optim.SGD(net.parameters(), lr = 0.1)
     train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)
     predict_ch3(net, test_iter)
     plt.show()

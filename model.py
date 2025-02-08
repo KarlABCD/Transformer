@@ -48,7 +48,7 @@ class MultiHeadAttention(nn.Module):
         return output, weights
     
 class PoswiseFeedForwardNet(nn.Module):
-    def __init__(self, model_config, d_ff=2048):
+    def __init__(self, model_config, d_ff = 2048):
         super(PoswiseFeedForwardNet,self).__init__()
         self.conv1 = nn.Conv1d(in_channels = model_config['d_embedding'], 
                                out_channels = d_ff, kernel_size=1)
@@ -123,7 +123,8 @@ class DecoderLayer(nn.Module):
                                                       dec_enc_attn_mask, 
                                                       model_config)
         dec_outputs = self.pos_ffn(dec_outputs)
-        #ShowHeatmaps(dec_enc_attn, xlabel='Keys', ylabel='Queries')
+        if model_config['bModelDebug']:
+            ShowHeatmaps(dec_enc_attn, xlabel='Keys', ylabel='Queries')
         return dec_outputs, dec_self_attn, dec_enc_attn
 
 class Decoder(nn.Module):
