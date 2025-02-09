@@ -50,41 +50,6 @@ def VisualizePara(InputNumpy, ParaName, index):
     plt.savefig(f"{index} {ParaName}.jpg",bbox_inches='tight', pad_inches=0)
 
 def ShowHeatmaps(matrices, xlabel, ylabel, figure_id, titles=None, figsize=(2.5, 2.5),
-                cmap='Blues', x_tick_labels=None, y_tick_labels=None):
-    """显示矩阵热图"""
-    # 设置 matplotlib 支持中文
-    plt.rcParams['font.family'] = 'SimHei'  # 在 Windows 上使用黑体
-    # 解决负号显示问题
-    plt.rcParams['axes.unicode_minus'] = False
-    num_rows, num_cols = matrices.shape[0], matrices.shape[1]
-    fig, axes = plt.subplots(num_rows, num_cols, num=figure_id, figsize=figsize,
-                            sharex=True, sharey=True, squeeze=False)
-    for i, (row_axes, row_matrices) in enumerate(zip(axes, matrices)):
-        for j, (ax, matrix) in enumerate(zip(row_axes, row_matrices)):
-            ax.cla()
-            pcm = ax.imshow(matrix.detach().numpy(), cmap=cmap)
-
-            if i == num_rows - 1:
-                ax.set_xlabel(xlabel)
-                if x_tick_labels is not None:
-                    # 设置 x 轴刻度位置
-                    ax.set_xticks(range(len(x_tick_labels)))
-                    # 设置 x 轴刻度标签
-                    ax.set_xticklabels(x_tick_labels)
-            if j == 0:
-                ax.set_ylabel(ylabel)
-                if y_tick_labels is not None:
-                    # 设置 y 轴刻度位置
-                    ax.set_yticks(range(len(y_tick_labels)))
-                    # 设置 y 轴刻度标签
-                    ax.set_yticklabels(y_tick_labels)
-            if titles:
-                ax.set_title(titles[j])
-    fig.colorbar(pcm, ax=axes, shrink=0.6)
-    plt.draw()  # 重绘图形
-    plt.pause(0.1)  # 暂停一段时间以便观察更新'''
-
-'''def ShowHeatmaps(matrices, xlabel, ylabel, figure_id, titles=None, figsize=(2.5, 2.5),
                  cmap='Blues', x_tick_labels=None, y_tick_labels=None):
     """显示矩阵热图"""
     # 设置 matplotlib 支持中文
@@ -133,4 +98,4 @@ def ShowHeatmaps(matrices, xlabel, ylabel, figure_id, titles=None, figsize=(2.5,
     # 重绘图形
     plt.draw()
     # 暂停一段时间以便观察更新
-    plt.pause(0.1)'''
+    plt.pause(0.1)
