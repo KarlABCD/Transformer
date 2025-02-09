@@ -11,6 +11,7 @@ import argparse
 import importlib.util
 from timer import Timer
 from animator import Animator
+from visualization import ShowHeatmaps
 
 # GPU
 def fromfile(filename):
@@ -75,7 +76,34 @@ def train(config):
             #handle = model.encoder.pos_emb.register_forward_hook(forward_hook)
             handle = model.encoder.register_forward_hook(forward_hook)
 
-        outputs,_,_,_ = model(enc_inputs,dec_inputs, config.model_config)
+        outputs,enc_outputs, dec_outputs, enc_self_attns,\
+        dec_self_attns, dec_enc_attns = model(enc_inputs,
+                                            dec_inputs, 
+                                            config.model_config)
+        plt.ion()
+        if config.model_config['bModelDebug']:
+            for i in range(config.model_config['n_layers']):
+                enc_tick_labels = corpus.src_vocab.to_tokens(enc_inputs[0].tolist())
+                dec_tick_labels = corpus.tgt_vocab.to_tokens(dec_inputs[0].tolist())
+                ShowHeatmaps(enc_self_attns[i], xlabel='Enc_Self_Keys', 
+                            ylabel='Enc_Self_Queries', 
+                            figure_id=1,
+                            x_tick_labels=enc_tick_labels,
+                            y_tick_labels=enc_tick_labels)
+                ShowHeatmaps(dec_self_attns[i], xlabel='Dec_Self_Keys', 
+                            ylabel='Dec_Self_Queries', cmap = 'Reds', 
+                            figure_id=2,
+                            x_tick_labels=dec_tick_labels, 
+                            y_tick_labels=dec_tick_labels)
+                ShowHeatmaps(dec_enc_attns[i], xlabel='Dec_Enc_Keys', 
+                            ylabel='Dec_Enc_Queries',
+                            figure_id=3,
+                            x_tick_labels=enc_tick_labels,
+                            y_tick_labels=dec_tick_labels)
+            print(f'enc_inputs size: {enc_inputs.size()}')
+            print(f'enc_outputs size: {enc_outputs.size()}')
+            print(f'dec_inputs size: {dec_inputs.size()}')
+            print(f'dec_outputs size: {dec_outputs.size()}')
         if config.bDataRecord:
             handle.remove()
             for index,values in enumerate(forward_hook.inputs):
@@ -128,7 +156,7 @@ def predict(corpus, config, model):
 
     #方法2
     enc_inputs,_,_ = corpus.make_batch(config.model_config['batch_size'], 
-                                       device_type = config.device_type, 
+                                       config.device_type,
                                        test_batch = True)
     for enc_input in enc_inputs:
         enc_input = torch.unsqueeze(enc_input, dim=0)
@@ -152,5 +180,5 @@ if __name__ == '__main__':
     model, config = train(config)
     timer.stop()
     predict(corpus, config, model)
-    if config.bDebugInfo:
-        plt.show()
+ #   if config.bDebugInfo:
+ #       plt.show()

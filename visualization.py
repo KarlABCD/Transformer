@@ -5,7 +5,6 @@ import torch
 from mpl_toolkits.mplot3d import axes3d
 import numpy as np
 import seaborn as sns
-from d2l import torch as d2l
 
 def Tensor2Numpy(InputTensor):
     OutputNumpy = InputTensor.detach().numpy()
@@ -44,25 +43,94 @@ def VisualizePara(InputNumpy, ParaName, index):
     fig = plt.figure(figsize=(InputNumpy.shape[1], InputNumpy.shape[0]))
     for i in range(InputNumpy.shape[0]):
         for j in range(InputNumpy.shape[1]):
-            plt.text(j, i, f'{InputNumpy[i, j]:.2f}', ha='center', va='center', color='black')
+            plt.text(j, i, f'{InputNumpy[i, j]:.2f}', ha='center', va='center', 
+                     color='black')
     plt.imshow(InputNumpy, cmap='viridis')
     plt.title(ParaName)
     plt.savefig(f"{index} {ParaName}.jpg",bbox_inches='tight', pad_inches=0)
 
-def ShowHeatmaps(matrices, xlabel, ylabel, titles=None, figsize=(2.5, 2.5),
-                cmap='Blues'):
+def ShowHeatmaps(matrices, xlabel, ylabel, figure_id, titles=None, figsize=(2.5, 2.5),
+                cmap='Blues', x_tick_labels=None, y_tick_labels=None):
     """显示矩阵热图"""
-    d2l.use_svg_display()
+    # 设置 matplotlib 支持中文
+    plt.rcParams['font.family'] = 'SimHei'  # 在 Windows 上使用黑体
+    # 解决负号显示问题
+    plt.rcParams['axes.unicode_minus'] = False
     num_rows, num_cols = matrices.shape[0], matrices.shape[1]
-    fig, axes = plt.subplots(num_rows, num_cols, figsize=figsize,
-                                sharex=True, sharey=True, squeeze=False)
+    fig, axes = plt.subplots(num_rows, num_cols, num=figure_id, figsize=figsize,
+                            sharex=True, sharey=True, squeeze=False)
     for i, (row_axes, row_matrices) in enumerate(zip(axes, matrices)):
         for j, (ax, matrix) in enumerate(zip(row_axes, row_matrices)):
+            ax.cla()
             pcm = ax.imshow(matrix.detach().numpy(), cmap=cmap)
+
             if i == num_rows - 1:
                 ax.set_xlabel(xlabel)
+                if x_tick_labels is not None:
+                    # 设置 x 轴刻度位置
+                    ax.set_xticks(range(len(x_tick_labels)))
+                    # 设置 x 轴刻度标签
+                    ax.set_xticklabels(x_tick_labels)
             if j == 0:
                 ax.set_ylabel(ylabel)
+                if y_tick_labels is not None:
+                    # 设置 y 轴刻度位置
+                    ax.set_yticks(range(len(y_tick_labels)))
+                    # 设置 y 轴刻度标签
+                    ax.set_yticklabels(y_tick_labels)
             if titles:
                 ax.set_title(titles[j])
     fig.colorbar(pcm, ax=axes, shrink=0.6)
+    plt.draw()  # 重绘图形
+    plt.pause(0.1)  # 暂停一段时间以便观察更新'''
+
+'''def ShowHeatmaps(matrices, xlabel, ylabel, figure_id, titles=None, figsize=(2.5, 2.5),
+                 cmap='Blues', x_tick_labels=None, y_tick_labels=None):
+    """显示矩阵热图"""
+    # 设置 matplotlib 支持中文
+    plt.rcParams['font.family'] = 'SimHei'  # 在 Windows 上使用黑体
+    # 解决负号显示问题
+    plt.rcParams['axes.unicode_minus'] = False
+    num_rows, num_cols = matrices.shape[0], matrices.shape[1]
+    fig = plt.figure(figure_id)
+    # 清空图形内容
+    fig.clf()
+    axes = []
+    for i in range(num_rows):
+        row_axes = []
+        for j in range(num_cols):
+            ax = fig.add_subplot(num_rows, num_cols, i * num_cols + j + 1)
+            row_axes.append(ax)
+        axes.append(row_axes)
+
+    first_pcm = None  # 用于保存第一个子图的 pcm 对象
+    for i, (row_axes, row_matrices) in enumerate(zip(axes, matrices)):
+        for j, (ax, matrix) in enumerate(zip(row_axes, row_matrices)):
+            ax.cla()
+            pcm = ax.imshow(matrix.detach().numpy(), cmap=cmap)
+            if first_pcm is None:
+                first_pcm = pcm
+            if i == num_rows - 1:
+                ax.set_xlabel(xlabel)
+                if x_tick_labels is not None:
+                    # 设置 x 轴刻度位置
+                    ax.set_xticks(range(len(x_tick_labels)))
+                    # 设置 x 轴刻度标签
+                    ax.set_xticklabels(x_tick_labels)
+            if j == 0:
+                ax.set_ylabel(ylabel)
+                if y_tick_labels is not None:
+                    # 设置 y 轴刻度位置
+                    ax.set_yticks(range(len(y_tick_labels)))
+                    # 设置 y 轴刻度标签
+                    ax.set_yticklabels(y_tick_labels)
+            if titles:
+                ax.set_title(titles[j])
+
+    # 添加颜色条
+    fig.colorbar(pcm, ax=axes, shrink=0.6)
+
+    # 重绘图形
+    plt.draw()
+    # 暂停一段时间以便观察更新
+    plt.pause(0.1)'''

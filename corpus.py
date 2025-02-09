@@ -29,9 +29,9 @@ class TranslationCorpus:
     def make_batch(self, batch_size, device_type, test_batch = False):
         input_batch, output_batch, target_batch = [],[],[]
         if(test_batch):
-            sentence_indices = torch.randperm(len(self.source))[:batch_size]
+            sentence_indices = torch.arange(batch_size)
         else:
-            sentence_indices = torch.arange(5)
+            sentence_indices = torch.randperm(len(self.source))[:batch_size]
         for index in sentence_indices:
             src_seq = [self.src_vocab[word] for word in self.source[index]]
             tgt_seq = [self.tgt_vocab['<sos>']] + [self.tgt_vocab[word] for word in self.target[index]] + [self.tgt_vocab['<eos>']]

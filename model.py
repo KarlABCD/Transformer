@@ -2,7 +2,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.functional as F
-from visualization import ShowHeatmaps
 from corpus import TranslationCorpus
 
 class ScaledDotProductionAttention(nn.Module):
@@ -123,8 +122,6 @@ class DecoderLayer(nn.Module):
                                                       dec_enc_attn_mask, 
                                                       model_config)
         dec_outputs = self.pos_ffn(dec_outputs)
-        if model_config['bModelDebug']:
-            ShowHeatmaps(dec_enc_attn, xlabel='Keys', ylabel='Queries')
         return dec_outputs, dec_self_attn, dec_enc_attn
 
 class Decoder(nn.Module):
@@ -173,7 +170,8 @@ class Transformer(nn.Module):
                                                                   enc_outputs, 
                                                                   model_config)
         dec_logits = self.projection(dec_outputs)
-        return dec_logits, enc_self_attns, dec_self_attns, dec_enc_attns
+        return dec_logits, enc_outputs, dec_outputs,\
+               enc_self_attns, dec_self_attns, dec_enc_attns
 def forward_hook(module, input, output):
     #print(f"Module name: {module.__class__.__name__}")
     forward_hook.inputs = []
