@@ -215,10 +215,13 @@ def get_sin_enc_table(n_position, embedding_dim):
     return torch.FloatTensor(sinusoid_table)
 
 def get_attn_pad_mask(seq_q,seq_k):
-    batch_size, len_q = seq_q.size()
-    batch_size, len_k = seq_k.size()
-    pad_attn_mask = seq_k.data.eq(0).unsqueeze(1)
-    pad_attn_mask = pad_attn_mask.expand(batch_size, len_q, len_k)
+    #batch_size, len_q = seq_q.size()
+    #batch_size, len_k = seq_k.size()
+    #pad_attn_mask = seq_k.data.eq(0).unsqueeze(1)
+    #pad_attn_mask = pad_attn_mask.expand(batch_size, len_q, len_k)
+    input_masks = seq_q.ne(0)
+    output_masks = seq_k.ne(0)
+    pad_attn_mask = ~(input_masks.unsqueeze(2) * output_masks.unsqueeze(1))
     return pad_attn_mask
 
 def get_attn_subsequent_mask(seq):

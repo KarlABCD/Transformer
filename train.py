@@ -29,7 +29,8 @@ def train(config):
     criterion = nn.CrossEntropyLoss()
     if (os.path.exists(os.path.join(config.ModelOutDir, config.ModelName)) and 
         config.WorkMode == 'PreTrained'):
-        PreCheckPt = torch.load(os.path.join(config.ModelOutDir, config.ModelName))
+        PreCheckPt = torch.load(os.path.join(config.ModelOutDir, 
+                                        config.ModelName), weights_only=False)
         model = PreCheckPt['model']
         optimizer = PreCheckPt['optimizer']
     else:
@@ -80,7 +81,6 @@ def train(config):
         dec_self_attns, dec_enc_attns = model(enc_inputs,
                                             dec_inputs, 
                                             config.model_config)
-        plt.ion()
         if config.model_config['bModelDebug']:
             for i in range(config.model_config['n_layers']):
                 enc_tick_labels, dec_tick_labels = [], []
@@ -102,8 +102,8 @@ def train(config):
                 ShowHeatmaps(dec_enc_attns[i], xlabel='Enc_Dec_Keys', 
                             ylabel='Enc_Dec_Queries',
                             figure_id=3,
-                            x_tick_labels=dec_tick_labels,
-                            y_tick_labels=enc_tick_labels)
+                            x_tick_labels=enc_tick_labels,
+                            y_tick_labels=dec_tick_labels)
             #print(f'enc_inputs size: {enc_inputs.size()}')
             #print(f'enc_outputs size: {enc_outputs.size()}')
             #print(f'dec_inputs size: {dec_inputs.size()}')

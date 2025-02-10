@@ -18,7 +18,8 @@ def PlotOneDimTensor(InputTensor):
     InputNumpy = Tensor2Numpy(InputTensor)
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    x, y = np.meshgrid(np.arange( InputNumpy.shape[1]), np.arange(InputNumpy.shape[0]))
+    x, y = np.meshgrid(np.arange(InputNumpy.shape[1]), 
+                       np.arange(InputNumpy.shape[0]))
     x = x.ravel()
     y = y.ravel()
     InputNumpy = InputNumpy.ravel()
@@ -31,14 +32,6 @@ def PlotOneDimTensor(InputTensor):
     ax.set_aspect('equalxy', 'box')
     plt.savefig("sine_wave.png")
     #plt.show()
-def VisualizeAttention(source_sentences, predicted_sentences, attn_weights):
-    plt.figure(figsize=(10, 10))
-    ax = sns.heatmap(attn_weights, annot = True, cbar = False,
-                        xticklabels=source_sentences.split(),
-                        yticklabels=predicted_sentences,cmap="Greens")
-    plt.xlabel("源序列")
-    plt.ylabel("目标序列")
-    plt.show()
 def VisualizePara(InputNumpy, ParaName, index):
     fig = plt.figure(figsize=(InputNumpy.shape[1], InputNumpy.shape[0]))
     for i in range(InputNumpy.shape[0]):
@@ -49,15 +42,16 @@ def VisualizePara(InputNumpy, ParaName, index):
     plt.title(ParaName)
     plt.savefig(f"{index} {ParaName}.jpg",bbox_inches='tight', pad_inches=0)
 
-def ShowHeatmaps(matrices, xlabel, ylabel, figure_id, titles=None, figsize=(2.5, 2.5),
-                 cmap='Blues', x_tick_labels=None, y_tick_labels=None):
+def ShowHeatmaps(matrices, xlabel, ylabel, figure_id, titles=None, 
+                 figsize=(10, 10), cmap='Blues', x_tick_labels=None, 
+                 y_tick_labels=None):
     """显示矩阵热图"""
     # 设置 matplotlib 支持中文
     plt.rcParams['font.family'] = 'SimHei'  # 在 Windows 上使用黑体
     # 解决负号显示问题
     plt.rcParams['axes.unicode_minus'] = False
     num_rows, num_cols = matrices.shape[0], matrices.shape[1]
-    fig = plt.figure(figure_id)
+    fig = plt.figure(figure_id, figsize=figsize)
     # 清空图形内容
     fig.clf()
     axes = []
