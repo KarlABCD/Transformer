@@ -21,8 +21,8 @@ ModelOutDir = 'checkpoint'
 ModelName = 'checkpoint_example.pt'
 RecordOutDir = 'modelrecord'
 RecordName = 'record_example.pkl'
-#WorkMode = 'PreTrained'
-WorkMode = 'scratch'
+WorkMode = 'PreTrained'
+#WorkMode = 'scratch'
 CheckPtNum = 10
 
 # 是否需要打印重要信息

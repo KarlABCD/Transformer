@@ -91,9 +91,10 @@ def ShowHeatmaps(matrices, xlabel, ylabel, figure_id, titles=None, figsize=(2.5,
                     ax.set_yticklabels(y_tick_labels)
             if titles:
                 ax.set_title(titles[j])
+                    # 添加颜色条
+            fig.colorbar(pcm, ax=ax, shrink=0.6)
 
-    # 添加颜色条
-    fig.colorbar(pcm, ax=axes, shrink=0.6)
+
 
     # 重绘图形
     plt.draw()
