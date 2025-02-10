@@ -14,15 +14,15 @@ model_config = {'d_k': 64,
                 'n_heads': 2,
                 'batch_size' : 5,
                 'n_layers': 1,
-                'bModelDebug': False}
+                'bModelDebug': True}
 # 保存格式相关的
 bDataRecord = True
 ModelOutDir = 'checkpoint'
 ModelName = 'checkpoint.pt'
 RecordOutDir = 'modelrecord'
 RecordName = 'record.pkl'
-WorkMode = 'PreTrained'
-#WorkMode = 'scratch'
+#WorkMode = 'PreTrained'
+WorkMode = 'scratch'
 CheckPtNum = 10
 
 # 是否需要打印重要信息

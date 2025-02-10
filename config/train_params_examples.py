@@ -14,7 +14,7 @@ model_config = {'d_k': 64,
                 'n_heads': 1,
                 'batch_size' : 1,
                 'n_layers': 1,
-                'bModelDebug': True}
+                'bModelDebug': False}
 # 保存格式相关的
 bDataRecord = True
 ModelOutDir = 'checkpoint'

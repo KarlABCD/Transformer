@@ -75,28 +75,24 @@ def ShowHeatmaps(matrices, xlabel, ylabel, figure_id, titles=None, figsize=(2.5,
             pcm = ax.imshow(matrix.detach().numpy(), cmap=cmap)
             if first_pcm is None:
                 first_pcm = pcm
-            if i == num_rows - 1:
-                ax.set_xlabel(xlabel)
-                if x_tick_labels is not None:
-                    # 设置 x 轴刻度位置
-                    ax.set_xticks(range(len(x_tick_labels)))
-                    # 设置 x 轴刻度标签
-                    ax.set_xticklabels(x_tick_labels)
-            if j == 0:
-                ax.set_ylabel(ylabel)
-                if y_tick_labels is not None:
-                    # 设置 y 轴刻度位置
-                    ax.set_yticks(range(len(y_tick_labels)))
-                    # 设置 y 轴刻度标签
-                    ax.set_yticklabels(y_tick_labels)
+            ax.set_xlabel(xlabel)
+            if x_tick_labels is not None:
+                # 设置 x 轴刻度位置
+                ax.set_xticks(range(len(x_tick_labels[i])))
+                # 设置 x 轴刻度标签
+                ax.set_xticklabels(x_tick_labels[i])
+            ax.set_ylabel(ylabel)
+            if y_tick_labels is not None:
+                # 设置 y 轴刻度位置
+                ax.set_yticks(range(len(y_tick_labels[i])))
+                # 设置 y 轴刻度标签
+                ax.set_yticklabels(y_tick_labels[i])
             if titles:
                 ax.set_title(titles[j])
                     # 添加颜色条
             fig.colorbar(pcm, ax=ax, shrink=0.6)
-
-
-
     # 重绘图形
     plt.draw()
     # 暂停一段时间以便观察更新
     plt.pause(0.1)
+    #plt.savefig(f"{figure_id}.jpg",bbox_inches='tight', pad_inches=0)

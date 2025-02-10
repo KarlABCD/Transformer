@@ -83,8 +83,12 @@ def train(config):
         plt.ion()
         if config.model_config['bModelDebug']:
             for i in range(config.model_config['n_layers']):
-                enc_tick_labels = corpus.src_vocab.to_tokens(enc_inputs[0].tolist())
-                dec_tick_labels = corpus.tgt_vocab.to_tokens(dec_inputs[0].tolist())
+                enc_tick_labels, dec_tick_labels = [], []
+                for j in range(enc_inputs.size(0)):
+                    enc_tick_labels.append(corpus.src_vocab.
+                                           to_tokens(enc_inputs[j].tolist()))
+                    dec_tick_labels.append(corpus.tgt_vocab.
+                                           to_tokens(dec_inputs[j].tolist()))
                 ShowHeatmaps(enc_self_attns[i], xlabel='Enc_Self_Keys', 
                             ylabel='Enc_Self_Queries', 
                             figure_id=1,
@@ -95,15 +99,15 @@ def train(config):
                             figure_id=2,
                             x_tick_labels=dec_tick_labels, 
                             y_tick_labels=dec_tick_labels)
-                ShowHeatmaps(dec_enc_attns[i], xlabel='Dec_Enc_Keys', 
-                            ylabel='Dec_Enc_Queries',
+                ShowHeatmaps(dec_enc_attns[i], xlabel='Enc_Dec_Keys', 
+                            ylabel='Enc_Dec_Queries',
                             figure_id=3,
-                            x_tick_labels=enc_tick_labels,
-                            y_tick_labels=dec_tick_labels)
-            print(f'enc_inputs size: {enc_inputs.size()}')
-            print(f'enc_outputs size: {enc_outputs.size()}')
-            print(f'dec_inputs size: {dec_inputs.size()}')
-            print(f'dec_outputs size: {dec_outputs.size()}')
+                            x_tick_labels=dec_tick_labels,
+                            y_tick_labels=enc_tick_labels)
+            #print(f'enc_inputs size: {enc_inputs.size()}')
+            #print(f'enc_outputs size: {enc_outputs.size()}')
+            #print(f'dec_inputs size: {dec_inputs.size()}')
+            #print(f'dec_outputs size: {dec_outputs.size()}')
         if config.bDataRecord:
             handle.remove()
             for index,values in enumerate(forward_hook.inputs):
