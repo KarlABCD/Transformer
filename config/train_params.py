@@ -11,10 +11,10 @@ learningrate = 0.0001
 model_config = {'d_k': 64,
                 'd_v': 64,
                 'd_embedding': 128,
-                'n_heads': 2,
-                'batch_size' : 5,
-                'n_layers': 1,
-                'bModelDebug': True}
+                'n_heads': 4,
+                'batch_size' : 10,
+                'n_layers': 2,
+                'bModelDebug': False}
 # 保存格式相关的
 bDataRecord = True
 ModelOutDir = 'checkpoint'

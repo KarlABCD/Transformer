@@ -1,6 +1,12 @@
-你 好 么\How are you
-欢迎 大家 参加 这次的 讨论会\Welcome everyone to participate in this discussion session
-自然 语言 处理 很 强大\NLP is so powerful
-还得 看 它 所在的 具体 代码 上下文 哦\It also depends on the specific code context where it is located.
-神经网络 非常 复杂\Neural-Nets are complex
-我 希望 能够 从中 获得 相应的 收获\I hope you can gain corresponding benefits from it
+它\It
+他\he
+她\she
+是\is
+不是\is not
+猪\pig
+人\person
+它 是 猪\It is pig
+他 是 人\He is person
+她 是 人\She is person
+它 不是 人\It is not person
+他 不是 猪\He is not pig

@@ -159,9 +159,10 @@ def predict(corpus, config, model):
     print(input_sentence,'->',translated_sentence)'''
 
     #方法2
-    enc_inputs,_,_ = corpus.make_batch(config.model_config['batch_size'], 
+    '''enc_inputs,_,_ = corpus.make_batch(config.model_config['batch_size'], 
                                        config.device_type,
-                                       test_batch = True)
+                                       test_batch = True)'''
+    enc_inputs = torch.tensor([5, 2, 8, 0]).unsqueeze(0)
     for enc_input in enc_inputs:
         enc_input = torch.unsqueeze(enc_input, dim=0)
         greedy_dec_input = greedy_decoder(model,enc_input, 
