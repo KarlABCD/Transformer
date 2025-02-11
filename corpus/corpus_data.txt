@@ -1,12 +1,11 @@
-它\It
-他\he
-她\she
-是\is
-不是\is not
-猪\pig
-人\person
-它 是 猪\It is pig
-他 是 人\He is person
-她 是 人\She is person
-它 不是 人\It is not person
-他 不是 猪\He is not pig
+它 是 猪\it is pig
+他 是 人\he is person
+她 是 人\she is person
+它 不是 人\it is not person
+他 不是 猪\he is not pig
+他 不是 猪 猪\he is not pig pig
+猪 不是 他\pig is not he
+人 是 他\person is he
+人 是 她\person is she
+猪 不是 他\pig is not he
+猪 不是 她\pig is not she
