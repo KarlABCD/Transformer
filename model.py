@@ -138,7 +138,7 @@ class Decoder(nn.Module):
     def forward(self,dec_inputs, enc_inputs, enc_outputs, model_config):
         pos_indices = torch.arange(1, dec_inputs.size(1) + 1).unsqueeze(0).to(dec_inputs)
         dec_outputs = self.tgt_emb(dec_inputs) + self.pos_emb(pos_indices)
-        dec_self_attn_pad_mask = get_attn_pad_mask(dec_inputs,dec_inputs)
+        dec_self_attn_pad_mask = get_attn_pad_mask(dec_inputs, dec_inputs)
         dec_self_attn_subsequent_mask = get_attn_subsequent_mask(dec_inputs)
         dec_self_attn_mask = torch.gt((dec_self_attn_pad_mask + 
                                        dec_self_attn_subsequent_mask),0)

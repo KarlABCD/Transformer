@@ -11,7 +11,7 @@ learningrate = 0.0001
 model_config = {'d_k': 64,
                 'd_v': 64,
                 'd_embedding': 128,
-                'n_heads': 1,
+                'n_heads': 2,
                 'batch_size' : 1,
                 'n_layers': 1,
                 'bModelDebug': True}

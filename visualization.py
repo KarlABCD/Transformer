@@ -89,4 +89,4 @@ def ShowHeatmaps(matrices, xlabel, ylabel, figure_id, titles=None,
     plt.draw()
     # 暂停一段时间以便观察更新
     plt.pause(0.1)
-    #plt.savefig(f"{figure_id}.jpg",bbox_inches='tight', pad_inches=0)
+    plt.savefig(f"{figure_id}.jpg",bbox_inches='tight', pad_inches=0)

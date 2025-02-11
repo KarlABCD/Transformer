@@ -77,7 +77,7 @@ def train(config):
             #handle = model.encoder.pos_emb.register_forward_hook(forward_hook)
             handle = model.encoder.register_forward_hook(forward_hook)
 
-        outputs,enc_outputs, dec_outputs, enc_self_attns,\
+        outputs, enc_outputs, dec_outputs, enc_self_attns,\
         dec_self_attns, dec_enc_attns = model(enc_inputs,
                                             dec_inputs, 
                                             config.model_config)

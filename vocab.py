@@ -11,9 +11,8 @@ class Vocab:
         counter = collections.Counter(tokens)
         self.token_freqs = sorted(counter.items(), key=lambda x: x[1],
                                   reverse=True)
-        # The list of unique tokens
-        self.idx_to_token = list(sorted(set(['<unk>'] + reserved_tokens + [
-            token for token, freq in self.token_freqs if freq >= min_freq])))
+        self.idx_to_token = reserved_tokens + ['<unk>'] + list(sorted(
+            [token for token, freq in self.token_freqs if freq >= min_freq]))
         self.token_to_idx = {token: idx
                              for idx, token in enumerate(self.idx_to_token)}
 
