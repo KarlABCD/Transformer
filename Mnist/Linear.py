@@ -34,9 +34,9 @@ def load_data_fashion_mnist(batch_size, resize=None):
         trans.insert(0, transforms.Resize(resize))
     trans = transforms.Compose(trans)
     mnist_train = torchvision.datasets.FashionMNIST(root = "../data",
-                            train = True, transform = trans, download = True)
+                            train = True, transform = trans, download = False)
     mnist_test = torchvision.datasets.FashionMNIST(root = "../data", 
-                            train = False, transform = trans, download = True)
+                            train = False, transform = trans, download = False)
     return data.DataLoader(mnist_train, batch_size, shuffle=True, num_workers = 4), \
         data.DataLoader( mnist_test, batch_size, shuffle=True, num_workers = 4)
     
@@ -81,7 +81,8 @@ def train_ch3(net, train_iter, test_iter, loss, num_epochs, updater):
         train_metrics = train_epoch_ch3(net, train_iter, loss, updater)
         test_acc = evaluate_accuracy(net, test_iter)
         animator.add(epoch + 1, train_metrics + (test_acc,))
-    train_loss, train_acc = train_metrics
+    #train_loss, train_acc = train_metrics
+    
     
 def predict_ch3(net, test_iter, n=6):
     for x, y in test_iter:
@@ -95,15 +96,15 @@ if __name__ == '__main__':
     batch_size = 256
     num_inputs = 784
     num_outputs = 10
-    lr = 0.001
+    lr = 0.1
     num_epochs = 5
     train_iter, test_iter = load_data_fashion_mnist(batch_size)
     net = nn.Sequential(nn.Flatten(), nn.Linear(784, 10))
     net.apply(init_weights)
     total_params = sum(p.numel() for p in net.parameters())
-    print(f'参数量:{total_params}')
+    #print(f'参数量:{total_params}')
     loss = nn.CrossEntropyLoss(reduction='none')
-    trainer = torch.optim.SGD(net.parameters(), lr = 0.1)
+    trainer = torch.optim.SGD(net.parameters(), lr = lr)
     train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)
     predict_ch3(net, test_iter)
     plt.show()

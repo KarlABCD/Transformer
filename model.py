@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import torch.functional as F
 from corpus import TranslationCorpus
+from visualization import ShowHeatmaps
 
 class ScaledDotProductionAttention(nn.Module):
     def __init__(self):
@@ -12,7 +13,13 @@ class ScaledDotProductionAttention(nn.Module):
         scores = torch.matmul(Q, K.transpose(-1,-2))/np.sqrt(model_config['d_k'])
         scores.masked_fill_(mask, -1e9)
         weights = nn.Softmax(dim = -1)(scores)
+        ShowHeatmaps(weights, xlabel='K', 
+                            ylabel='Q',
+                            figure_id=4)
         contexts = torch.matmul(weights, V)
+        ShowHeatmaps(contexts, xlabel='V', 
+                            ylabel='QK',
+                            figure_id=5)
         return contexts, weights
 class MultiHeadAttention(nn.Module):
     def __init__(self, model_config):

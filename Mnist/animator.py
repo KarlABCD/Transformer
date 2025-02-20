@@ -1,5 +1,6 @@
 from d2l import torch as d2l
 from IPython import display
+import matplotlib.pyplot as plt
 class Animator:
     def __init__(self,
                  xlabel = None,

@@ -9,9 +9,9 @@ dtype = 'bfloat16'
 learningrate = 0.0001
 # 模型相关的参数
 model_config = {'d_k': 64,
-                'd_v': 64,
+                'd_v': 32,
                 'd_embedding': 128,
-                'n_heads': 2,
+                'n_heads': 1,
                 'batch_size' : 1,
                 'n_layers': 1,
                 'bModelDebug': True}
